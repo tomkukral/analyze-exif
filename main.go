@@ -41,6 +41,7 @@ func main() {
 
 	jobs := make(chan string, workers)
 	data := make([]exifData, 0)
+	result := make(map[int]int)
 
 	files := FindFiles(dir)
 	fmt.Printf("Discovered %d file(s)\n", len(files))
@@ -56,7 +57,22 @@ func main() {
 	}
 
 	wg.Wait()
+	close(jobs)
 
 	fmt.Printf("Got %d results\n", len(data))
-	fmt.Printf("%+v\n", data)
+
+	for _, r := range data {
+		fl := int(r.focal)
+
+		if _, ok := result[fl]; ok {
+			result[fl]++
+		} else {
+			result[fl] = 1
+		}
+
+	}
+
+	for length, count := range result {
+		fmt.Printf("%d:\t%d\n", length, count)
+	}
 }
